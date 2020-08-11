@@ -1,9 +1,10 @@
 import numpy as np
 import cv2, pytesseract
-from daubotIO import screenshot, locate, moveTo,getDofusWindow,waitFor,hotkey
+from daubotIO import screenshot, locate, moveTo,getDofusWindow,waitFor,hotkey,locateCenter
 import difflib
 from daufousMap import getIndiceAnswers
 from time import time,sleep
+from random import randint
 
 phos = ["Phorreur sournois", "Phorreur baveux", "Phorreur chafouin", "Phorreur fourbe", "Phorreur méfiant", "Phorreur rusé"]
 
@@ -308,11 +309,30 @@ def chasseLegendaire(window):
 def inFight(window):
     return not(not(locate("fight.jpg",0.7,window)))
 
-def myTurn(window):
-    return not(not(locate("endturn.jpg",0.9,window)))
+def myTurn(charIndex, window):
+    return getTurnIndex(window) == charIndex
+
+def getTurnIndex(window):
+    xArrow,_ = bestMatch("turnArrow.jpg",window)
+    xRef,_ = bestMatch("fight.jpg",window)
+    index = round((xRef - xArrow - 75)/60)
+    return index
+
+def bestMatch(path, window):
+    screen = screenshot(window = window)
+    ref = cv2.imread(path)
+    res = cv2.matchTemplate(ref, screen, cv2.TM_SQDIFF_NORMED)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+    min_loc = list(min_loc)
+    # min_loc[0] += ref.shape[0]
+    # min_loc[1] += ref.shape[1]
+    return tuple(min_loc)
 
 def victoire(window):
-    return not(not(locate("victoire.jpg",0.7,window)))
+    return not(not(locate("victoire.jpg",0.8,window)))
+
+def defaite(window):
+    return not(not(locate("defaite.jpg",0.8,window)))
 
 def toggleTransparency(window):
     hotkey('shift','2', window)
@@ -334,10 +354,22 @@ def getEntityDelta(window):
     cv2.imwrite("debug\\phoDelta3.jpg",r)
     return r
 
+def waitForEndScreen(window):
+    while not victoire(window) and not defaite(window):
+        pass
+
+def placementPhase(window):
+    return not(locate("turnArrow.jpg",0.8,window))
+
+def initializeCharIndex(window):
+    while np.all(screenshot((850,1015,851,1016),window) != [[[0, 200, 252]]]):
+        pass
+    return getTurnIndex(window)
+
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
     waitFor(window)
     #print(phorreurOnMap("Phorreur fourbe", window))
     #cv2.imwrite("debug\\phoDelta2.jpg",getEntityDelta(window))
-    print(parseLocation(window))
+    #print(parseLocation(window))
     

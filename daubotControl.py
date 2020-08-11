@@ -80,8 +80,6 @@ def travel(coord,x,y,window):
     attenteForImg("travelPending.jpg", window, timeout = 10)
     press("enter", window)
     leaveChat(window)
-    if travelImpossible(window):
-        raise NameError("Can't travel")
     attenteForImg("travelFinished.JPG", window)
     print("travelled to:",x,y)
 
@@ -202,10 +200,6 @@ def takeTransporteur(depRegion, window):
     click(*dictt[region], window)
     sleep(10)
 
-def travelImpossible(window):
-    return False
-
-
 def abandon(startTime, window):
     print("abandon\n\n\n\n\n")
     while time() - startTime < 600:
@@ -224,6 +218,7 @@ def lanceCombat(window):
         click(*loc, window)
     while not inFight(window):
         sleep(IOpause)
+    print("fight started")
 
 
 

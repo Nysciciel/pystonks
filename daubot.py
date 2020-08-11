@@ -1,7 +1,9 @@
 from daubotControl import travel,zaapTo,clickOnZaap,enterCouloirMalle,enterSalleMalle,takeChasse,goDir,enterHavreSac,waitForCoord,attenteChasse,validateEtape,validateIndice,takeTransporteur,abandon,lanceCombat,leaveChat
-from daubotImg import getCoord,hasChasse,getDepCoord,getIndice,getEtape,getNumeroIndice,etapeFinie,getDir,isPho,phorreurOnMap,directionOpposée,getDepRegion,isDownOfOtomai,isRegionOnlyAccessibleThroughTranspo,chasseLegendaire,parseLocation,inFight,victoire,myTurn
+from daubotImg import getCoord,hasChasse,getDepCoord,getIndice,getEtape,getNumeroIndice,etapeFinie,getDir,isPho,phorreurOnMap,directionOpposée,getDepRegion,isDownOfOtomai,isRegionOnlyAccessibleThroughTranspo,chasseLegendaire,parseLocation,inFight,victoire,myTurn,waitForEndScreen,placementPhase,getTurnIndex,initializeCharIndex
 from daufousMap import getIndiceDist,getIndiceCoord,getIndiceAnswers,zaapName, closestZaapCoord
 from daubotIO import waitFor,getDofusWindow
+from daubotCombat import passTurn,parseMap,standardStrat,applyStrategy
+from daubotCombat import Combat
 from time import time, strftime
 
 
@@ -119,6 +121,7 @@ def FaireChasse(window):
                 for i in range(dist):
                     if not goDir(location, direction, window):
                         print("Resort to direct travel:",indiceCoord)
+                        location = parseLocation(window)
                         travel(getCoord(location, window), *indiceCoord,window)
                         break
                     location = parseLocation(window)
@@ -171,32 +174,8 @@ def searchPho(location, phorreur, direction, visited, window):
                     return True
     return False
 
-def Combat(window):
-    print("combat.")
-    if chasseLegendaire(window):
-        print("chasse légendaire terminée")
-        return False
-    lanceCombat(window)
-    while inFight(window):
-        if myTurn(window):
-            print("my turn")
-            playTurn(window)
-            while myTurn(window):
-                pass
-        else:
-            print("not my turn")
-            while not myTurn(window):
-                pass
-    if victoire(window):
-        print("victoire")
-    print("défaite")
-    leaveChat(window)
-    return True
 
-def playTurn(window):
-    return#TODO
-
-def faireChasses(window):
+def faireChasses(strat, window):
     waitFor(window)
     while True:
         startTime = TakeChasse(window)
@@ -204,7 +183,8 @@ def faireChasses(window):
         if not FaireChasse(window):
             abandon(startTime, window)
             continue
-        if not Combat(window):
+        return False
+        if not Combat(strat, window):
             return False
             
 
@@ -212,7 +192,9 @@ def faireChasses(window):
 
 
 if __name__ == "__main__":
-    faireChasses(getDofusWindow("Mr-Maron"))
+    strat = standardStrat()
+    window = getDofusWindow("Mr-Maron")
+    faireChasses(strat, window)
 
 
 
