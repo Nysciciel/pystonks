@@ -1,8 +1,7 @@
-from daubotControl import travel,zaapTo,clickOnZaap,enterCouloirMalle,enterSalleMalle,takeChasse,goDir,enterHavreSac,waitForCoord,attenteChasse,validateEtape,validateIndice,takeTransporteur,abandon,lanceCombat,leaveChat
-from daubotImg import getCoord,hasChasse,getDepCoord,getIndice,getEtape,getNumeroIndice,etapeFinie,getDir,isPho,phorreurOnMap,directionOpposée,getDepRegion,isDownOfOtomai,isRegionOnlyAccessibleThroughTranspo,chasseLegendaire,parseLocation,inFight,victoire,myTurn,waitForEndScreen,placementPhase,getTurnIndex,initializeCharIndex
+from daubotControl import travel,zaapTo,clickOnZaap,enterCouloirMalle,enterSalleMalle,takeChasse,goDir,enterHavreSac,waitForCoord,attenteChasse,validateEtape,validateIndice,takeTransporteur,abandon
+from daubotImg import getCoord,hasChasse,getDepCoord,getIndice,getEtape,getNumeroIndice,etapeFinie,getDir,isPho,phorreurOnMap,directionOpposee,getDepRegion,isDownOfOtomai,isRegionOnlyAccessibleThroughTranspo,parseLocation,inFight
 from daufousMap import getIndiceDist,getIndiceCoord,getIndiceAnswers,zaapName, closestZaapCoord
 from daubotIO import waitFor,getDofusWindow
-from daubotCombat import passTurn,parseMap,standardStrat,applyStrategy
 from daubotCombat import Combat
 from time import time, strftime
 
@@ -44,7 +43,7 @@ def TakeChasse(window):
         attenteChasse(window)
         start = time()
         print("Je resors")
-        travel(getCoord("La Malle aux trésors \n-25,-36", window),-24,-36,window)
+        travel(getCoord("La Malle aux tresors \n-25,-36", window),-24,-36,window)
         return start
     except NameError:
         travel(getCoord(loc, window),-24,-36,window)
@@ -104,7 +103,8 @@ def FaireChasse(window):
             print("\nat:",coord)
             direction = getDir(window)
             print("towards:", direction)
-            indice = getIndice(window, answers = getIndiceAnswers(*coord,direction, world = world))
+            answers = getIndiceAnswers(*coord,direction, world = world)
+            indice = getIndice(window, answers = answers)
             print("Found:", indice)
             if isPho(indice):
                 if not searchPho(location, indice, direction, visited, window):
@@ -116,10 +116,12 @@ def FaireChasse(window):
                 indiceCoord = getIndiceCoord(indice, *coord, direction, world = world)
                 print("Distance:",dist)
                 if not dist:
-                    print("messed up")
+                    print("error")
                     return False
                 for i in range(dist):
                     if not goDir(location, direction, window):
+                        if inFight(window):
+                            Combat(window)
                         print("Resort to direct travel:",indiceCoord)
                         location = parseLocation(window)
                         travel(getCoord(location, window), *indiceCoord,window)
@@ -149,6 +151,8 @@ def FaireChasse(window):
 
 def searchPho(location, phorreur, direction, visited, window):
     goDir(location, direction, window)
+    if inFight(window):
+        Combat(window)
     loc = parseLocation(window)
     if phorreurOnMap(phorreur,window):
         return True
@@ -156,26 +160,30 @@ def searchPho(location, phorreur, direction, visited, window):
     for k in range(3):
         for i in range(1, max(1,j)+1):
             if not goDir(loc, direction, window):
+                if inFight(window):
+                    Combat(window)
                 i -= 1
                 loc = parseLocation(window)
                 break
             loc = parseLocation(window)
-            if not getCoord(loc, window) in visited:
+            if not (getCoord(loc, window) in visited):
                 if phorreurOnMap(phorreur,window):
                     return True
         for j in range(1, max(1,i)+1):
-            if not goDir(loc, directionOpposée(direction), window):
+            if not goDir(loc, directionOpposee(direction), window):
+                if inFight(window):
+                    Combat(window)
                 j -= 1
                 loc = parseLocation(window)
                 break
             loc = parseLocation(window)
-            if not getCoord(loc, window) in visited:
+            if not (getCoord(loc, window) in visited):
                 if phorreurOnMap(phorreur,window):
                     return True
     return False
 
 
-def faireChasses(strat, window):
+def faireChasses(window):
     waitFor(window)
     while True:
         startTime = TakeChasse(window)
@@ -183,8 +191,7 @@ def faireChasses(strat, window):
         if not FaireChasse(window):
             abandon(startTime, window)
             continue
-        return False
-        if not Combat(strat, window):
+        if not Combat( window):
             return False
             
 
@@ -192,9 +199,8 @@ def faireChasses(strat, window):
 
 
 if __name__ == "__main__":
-    strat = standardStrat()
     window = getDofusWindow("Mr-Maron")
-    faireChasses(strat, window)
+    faireChasses(window)
 
 
 

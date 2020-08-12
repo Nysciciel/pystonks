@@ -1,14 +1,12 @@
 import numpy as np
 import cv2, pytesseract
-from daubotIO import screenshot, locate, moveTo,getDofusWindow,waitFor,hotkey,locateCenter
+from daubotIO import screenshot, locate, moveTo,getDofusWindow,hotkey
 import difflib
-from daufousMap import getIndiceAnswers
-from time import time,sleep
-from random import randint
+from time import sleep
 
-phos = ["Phorreur sournois", "Phorreur baveux", "Phorreur chafouin", "Phorreur fourbe", "Phorreur méfiant", "Phorreur rusé"]
+phos = ["Phorreur sournois", "Phorreur baveux", "Phorreur chafouin", "Phorreur fourbe", "Phorreur mefiant", "Phorreur ruse"]
 
-def parseLocation(window, tolerance = 225):
+def parseLocation(window, tolerance = 200):
     screen = screenshot((6,33,320,100), window)
     if screen is None:
         return None
@@ -20,7 +18,6 @@ def parseLocation(window, tolerance = 225):
     text = readText(cropped)
     try:
         getCoord(text, window)
-        #print("tolerance:", tolerance)
         return text
     except ValueError:
         return parseLocation(window, tolerance - 5)
@@ -66,8 +63,8 @@ def cropOutOld(inputImg, margin = 10):
     xmax = min(x, xmax + margin)
     return img[xmin:xmax, ymin:ymax]
 
-def readText(img,lang='eng'):
-    text = pytesseract.image_to_string(img, lang=lang)
+def readText(img,lang='eng', config = None):
+    text = pytesseract.image_to_string(img, lang=lang, config = config)
     return text
 
 def getCoord(location, window):
@@ -131,7 +128,7 @@ def getDepCoord(window):
             return (x,y)
         except ValueError:
             pass
-    raise NameError("coordonnées de départ illisibles")
+    raise NameError("coordonnees de depart illisibles")
 
 
 def getFlag(window):
@@ -145,7 +142,7 @@ def findIndiceSquare(window):
 
 def getIndice(window, answers = [], color = [72,56,30], tolerance = 100):
     if etapeFinie(window):
-        return "étape finie"
+        return "etape finie"
     x,y = parsingChasseCoord(window)
     x0,y0 = getFlag(window)
     screen = screenshot((x-30,y0-6,x0,y0+20), window)
@@ -214,7 +211,7 @@ def getNumeroIndice(window):
 def isPho(indice):
     return indice in phos
 
-def directionOpposée(dirr):
+def directionOpposee(dirr):
     return {"top":"bottom","bottom":"top","left":"right","right":"left"}[dirr]
 
 def canAdd(x,y,coordList):
@@ -263,7 +260,7 @@ def phorreurOnMap(phorreur, window):
             isolated = isolateInImg(screen, orange, tolerance)
             cv2.imwrite("debug\\phoDebug4"+str(i)+".jpg", isolated)
             text = readText(isolated)
-            if wordDiff(text, phorreur) < 6:
+            if wordDiff(text, phorreur) < 10:
                 return True
     return False
 
@@ -292,14 +289,14 @@ def doubleIsolateInImg(inputImg, greyTolerance = 15, whiteTolerance = 70):
 def isDownOfOtomai(region):
     downRegions = ["ile d'Otomaï (Jungle obscure)","ile d'Otomaï (Plaines herbeuses)","ile d'Otomaï (Plage de corail)","ile d'Otomaï (Village côtier)","ile d'Otomaï (Feuillage de l'arbre Hakam)"]
     downDiff = min([wordDiff(region, downRegion) for downRegion in downRegions])
-    upRegions = ["ile d'Otomaï (Tronc de l'arbre Hakam)","ile d'Otomaï (Village de la canopée)"]
+    upRegions = ["ile d'Otomaï (Tronc de l'arbre Hakam)","ile d'Otomaï (Village de la canopee)"]
     upDiff = min([wordDiff(region, upRegion) for upRegion in upRegions])
     return downDiff < upDiff
 
 def isRegionOnlyAccessibleThroughTranspo(region):
-    bourgadeRegions = ["ile de frigost (La Bourgade)","ile de frigost (Port de givre)","ile de frigost (Mer Kantil)","ile de frigost (Champs de glace)","ile de frigost (Forêt des pins perdus)","ile de frigost (Lac gelé)"]
+    bourgadeRegions = ["ile de frigost (La Bourgade)","ile de frigost (Port de givre)","ile de frigost (Mer Kantil)","ile de frigost (Champs de glace)","ile de frigost (Forêt des pins perdus)","ile de frigost (Lac gele)"]
     bourgadeDiff = min([wordDiff(region, bourgadeRegion) for bourgadeRegion in bourgadeRegions])
-    resteRegions = ["ile de frigost (Berceau d'Alma)","ile de frigost (Larmes d'Ouronigride)","ile de frigost (Crevasse Perge)","ile de frigost (Forêt pétrifiée)"]
+    resteRegions = ["ile de frigost (Berceau d'Alma)","ile de frigost (Larmes d'Ouronigride)","ile de frigost (Crevasse Perge)","ile de frigost (Forêt petrifiee)"]
     resteDiff = min([wordDiff(region, resteRegion) for resteRegion in resteRegions])
     return resteDiff < bourgadeDiff
     
@@ -338,8 +335,7 @@ def toggleTransparency(window):
     hotkey('shift','2', window)
     sleep(0.1)
 
-def getEntityDelta(window):
-    region = (325,25,1600,920)
+def getEntityDelta(window, region = (325,25,1600,920)):
     screen0 = screenshot(region, window)
     toggleTransparency(window)
     cv2.imwrite("debug\\phoDelta0.jpg",screen0)
@@ -356,20 +352,18 @@ def getEntityDelta(window):
 
 def waitForEndScreen(window):
     while not victoire(window) and not defaite(window):
-        pass
+        sleep(1)
 
 def placementPhase(window):
     return not(locate("turnArrow.jpg",0.8,window))
 
 def initializeCharIndex(window):
     while np.all(screenshot((850,1015,851,1016),window) != [[[0, 200, 252]]]):
-        pass
+        sleep(1)
     return getTurnIndex(window)
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
-    waitFor(window)
-    #print(phorreurOnMap("Phorreur fourbe", window))
-    #cv2.imwrite("debug\\phoDelta2.jpg",getEntityDelta(window))
-    #print(parseLocation(window))
+    print(parseLocation(window))
+    #print(phorreurOnMap("phorreur sournois", window))
     

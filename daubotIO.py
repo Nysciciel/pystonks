@@ -2,14 +2,13 @@ import win32gui, win32com.client
 import pyautogui
 import numpy as np
 from time import sleep
-pyautogui.PAUSE = 0.1
+pyautogui.PAUSE = 0.01
 IOpause = 0.01
 
 
 
 def waitFor(window):
     while not win32gui.GetForegroundWindow() == window:
-        sleep(IOpause)
         if not((win32gui.GetWindowText(window), window) in enumerateWindows()):
             raise NameError("Window to command doesn't exist.")
 
@@ -51,23 +50,31 @@ def getDofusWindow(characterName):
     return None
 
 def press(key, window):
+    sleep(IOpause)
     waitFor(window)
     pyautogui.press(key)
 
 def typeText(text, window):
+    sleep(IOpause)
+    sleep(0.5)
     waitFor(window)
-    for char in text:
-        press(char, window)
+    pyautogui.typewrite(text)
+    sleep(0.5)
 
 def click(x, y, window):
+    sleep(IOpause)
     waitFor(window)
+    pyautogui.moveTo(x,y)
+    pyautogui.moveTo(x+1,y)
     pyautogui.click(x,y)
 
 def doubleClick(x, y, window):
+    sleep(IOpause)
     waitFor(window)
     pyautogui.click(x,y,clicks = 2)
 
 def hotkey(k0, k1, window):
+    sleep(IOpause)
     waitFor(window)
     pyautogui.hotkey(k0, k1)
 
@@ -75,12 +82,14 @@ def screenshot(region = None, window = None):
     waitFor(window)
     if region:
         (xmin, ymin, xmax, ymax) = region
+            
         screen = pyautogui.screenshot(region=(xmin, ymin, xmax-xmin, ymax-ymin))
     else:
         screen = pyautogui.screenshot()
     return np.array(screen)[:, :, ::-1].astype(np.uint8)
 
 def moveTo(x,y,window):
+    sleep(IOpause)
     waitFor(window)
     pyautogui.moveTo(x,y)
     sleep(IOpause)
@@ -92,4 +101,3 @@ def setWindow(window):
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
-    #clickTranspo(window)

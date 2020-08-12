@@ -1,4 +1,4 @@
-from daubotIO import press,click,typeText,doubleClick,moveTo,locate,locateCenter,getDofusWindow,IOpause,hotkey
+from daubotIO import press,click,typeText,doubleClick,moveTo,locate,locateCenter,getDofusWindow,IOpause
 from time import time, sleep
 from daubotImg import getRegion,getCoord,inHavreSac,hasChasse,getFlag,wordDiff,inFight,parseLocation
 from random import randint
@@ -12,7 +12,7 @@ def clickOnZaap(window):
 def enterCouloirMalle(window, timeout = 10):
     click(941,421,window)
     start = time()
-    while getRegion(parseLocation(window), window) != "La Malle aux Trésors":
+    while wordDiff(getRegion(parseLocation(window), window) ,"La Malle aux Tresors")>3:
         if time()-start > timeout:
             raise NameError("Can't enter malle hallway")
 
@@ -36,8 +36,11 @@ def waitForCoordChange(coord, timeout, window):
     g = getCoord(parseLocation(window), window)
     start = time()
     while coord == g:
+        sleep(1)
         g = getCoord(parseLocation(window), window)
         if time()-start > timeout:
+            return False
+        if inFight(window):
             return False
     print("Now in:", g)
     return True
@@ -64,6 +67,7 @@ def attenteForImg(img, window, confidence = 0.7, timeout = float('inf')):
     r = None
     start = time()
     while r is None:
+        sleep(1)
         r = locate(img,confidence,window)
         if time()-start > timeout:
             return False
@@ -158,6 +162,7 @@ def sortirHavreSac(window):
 def waitForCoord(coord, timeout, window):
     start = time()
     while coord != getCoord(parseLocation(window), window):
+        sleep(1)
         if time()-start > timeout:
             return False
     return True
@@ -183,7 +188,7 @@ def clickTranspo(window):
     attenteForImg("transpo.jpg",window,0.8,10)
 
 def bestFrigostRegion(region):
-    regions = ["ile de frigost (Berceau d'Alma)","ile de frigost (Larmes d'Ouronigride)","ile de frigost (Crevasse Perge)","ile de frigost (Forêt pétrifiée)"]
+    regions = ["ile de frigost (Berceau d'Alma)","ile de frigost (Larmes d'Ouronigride)","ile de frigost (Crevasse Perge)","ile de frigost (Forêt petrifiee)"]
     minScore = float('inf')
     bestMatch = None
     for target in regions:
@@ -196,12 +201,14 @@ def bestFrigostRegion(region):
 def takeTransporteur(depRegion, window):
     clickTranspo(window)
     region = bestFrigostRegion(depRegion)
-    dictt = {"ile de frigost (Berceau d'Alma)":(941,669),"ile de frigost (Larmes d'Ouronigride)":(941,695),"ile de frigost (Crevasse Perge)":(941,719),"ile de frigost (Forêt pétrifiée)":(941,745)}
+    dictt = {"ile de frigost (Berceau d'Alma)":(941,669),"ile de frigost (Larmes d'Ouronigride)":(941,695),"ile de frigost (Crevasse Perge)":(941,719),"ile de frigost (Forêt petrifiee)":(941,745)}
     click(*dictt[region], window)
     sleep(10)
 
 def abandon(startTime, window):
     print("abandon\n\n\n\n\n")
+    if 600 - (time() - startTime) > 10:
+        sleep(600 - (time() - startTime))
     while time() - startTime < 600:
         sleep(IOpause)
     left,top = locateCenter("abandon.JPG",0.7,window)
@@ -224,5 +231,4 @@ def lanceCombat(window):
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
-    #clickTranspo(window)
-    goDir("right", window)
+    goDir(parseLocation(window), "left", window)
