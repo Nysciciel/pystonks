@@ -95,25 +95,25 @@ def goDir(location, direction, window):
         if coord in exceptions.keys():
             click(*exceptions[coord],window)
         else:
-            click(1000,35,window)
+            click(1100,35,window)
             
             
             
     elif direction == "left":
-        exceptions = {(-1,8):(754,500),(-5,25):(340,357),(-19,34):(754,500)}
+        exceptions = {(8,-27):(340, 500),(-1,8):(754, 500),(-5,25):(340, 357),(-22,-1):(340, 500),(-19,34):(754, 500)}
         if coord in exceptions.keys():
             click(*exceptions[coord],window)
         else:
-            click(340,500,window)
+            click(340,600,window)
             
             
             
     elif direction == "right":
-        exceptions = {(7,-27):(1576,100),(-2,8):(1200,325),(-6,25):(1574,357),(-23,-1):(1500,500)}
+        exceptions = {(7,-27):(1576,100),(-2,8):(1200,325),(-6,25):(1574,357),(-23,-1):(1500,500),(-20,34):(1576,500)}
         if coord in exceptions.keys():
             click(*exceptions[coord],window)
         else:
-            click(1576,500,window)
+            click(1576,400,window)
             
             
             
@@ -122,7 +122,7 @@ def goDir(location, direction, window):
         if coord in exceptions.keys():
             click(*exceptions[coord],window)
         else:
-            click(1000,909,window)
+            click(900,909,window)
             
             
             
@@ -182,6 +182,7 @@ def validateIndice(window):
     x,y = getFlag(window)
     click(x+15,y+15,window)
     clearMouse(window)
+    sleep(1)
 
 def clickTranspo(window):
     click(1024,638,window)
@@ -211,6 +212,7 @@ def abandon(startTime, window):
         sleep(600 - (time() - startTime))
     while time() - startTime < 600:
         sleep(IOpause)
+    clearInterface(window)
     left,top = locateCenter("abandon.JPG",0.7,window)
     click(left , top , window)
     attenteForImg("attention.jpg", window, timeout = 10)
@@ -223,12 +225,21 @@ def lanceCombat(window):
     loc = locateCenter("combattre.JPG",0.7,window)
     if loc:
         click(*loc, window)
-    while not inFight(window):
+    s = time()
+    while not inFight(window) :
         sleep(IOpause)
+        if time()-s > 10:
+            break
     print("fight started")
 
+def clearInterface(window):
+    while not(locate("mainMenu.PNG", 0.8, window)):
+        press('escape',window)
+        sleep(1)
+    press('escape',window)
+    while not(not(locate("mainMenu.PNG", 0.8, window))):
+        sleep(0.3)
 
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
-    goDir(parseLocation(window), "left", window)

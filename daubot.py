@@ -57,42 +57,45 @@ def FaireChasse(window):
     print("Depart en:",coord,"etape:",etape,"/",nEtape," indice trouves:",nIndice)
     visited = [coord]
     location = parseLocation(window)
-    if coord[0] < -40:
-        if coord[1] > -20:
-            print("ile d'otomai")
-            depRegion = getDepRegion(window)
-            if isDownOfOtomai(depRegion):
-                print("en bas de l'arbre")
-                if (etape == 1 and nIndice == 0) or etape == nEtape:
-                    enterHavreSac(location, window)
-                    clickOnZaap(window)
-                    zaapTo(getCoord(location, window), "cotier",window)
-                    waitForCoord((-46,18), 10,window)
-                    travel(getCoord(parseLocation(window), window), *coord, window)
+    if (etape == nEtape or nIndice == 0) and getCoord(location, window) == coord:
+        print("already there")
+    else:
+        if coord[0] < -40:
+            if coord[1] > -20:
+                print("ile d'otomai")
+                depRegion = getDepRegion(window)
+                if isDownOfOtomai(depRegion):
+                    print("en bas de l'arbre")
+                    if (etape == 1 and nIndice == 0) or etape == nEtape:
+                        enterHavreSac(location, window)
+                        clickOnZaap(window)
+                        zaapTo(getCoord(location, window), "cotier",window)
+                        waitForCoord((-46,18), 10,window)
+                        travel(getCoord(parseLocation(window), window), *coord, window)
+                else:
+                    print("en haut de l'arbre")
+                    world = 2
+                    if (etape == 1 and nIndice == 0) or etape == nEtape:
+                        enterHavreSac(location, window)
+                        clickOnZaap(window)
+                        zaapTo(getCoord(location, window), "canopee",window)
+                        waitForCoord((-54,16), 10,window)
+                        travel(getCoord(parseLocation(window), window), *coord, window)
             else:
-                print("en haut de l'arbre")
-                world = 2
+                print("frigost")
                 if (etape == 1 and nIndice == 0) or etape == nEtape:
                     enterHavreSac(location, window)
                     clickOnZaap(window)
-                    zaapTo(getCoord(location, window), "canopee",window)
-                    waitForCoord((-54,16), 10,window)
+                    zaapTo(getCoord(location, window), "bourgade",window)
+                    waitForCoord((-78,-41), 10,window)
+                    depRegion = getDepRegion(window)
+                    if isRegionOnlyAccessibleThroughTranspo(depRegion):
+                        travel((-78,-41),-68,-34,window)
+                        takeTransporteur(depRegion, window)
                     travel(getCoord(parseLocation(window), window), *coord, window)
         else:
-            print("frigost")
             if (etape == 1 and nIndice == 0) or etape == nEtape:
-                enterHavreSac(location, window)
-                clickOnZaap(window)
-                zaapTo(getCoord(location, window), "bourgade",window)
-                waitForCoord((-78,-41), 10,window)
-                depRegion = getDepRegion(window)
-                if isRegionOnlyAccessibleThroughTranspo(depRegion):
-                    travel((-78,-41),-68,-34,window)
-                    takeTransporteur(depRegion, window)
-                travel(getCoord(parseLocation(window), window), *coord, window)
-    else:
-        if (etape == 1 and nIndice == 0) or etape == nEtape:
-            goThroughZaap(location, *coord, window)
+                goThroughZaap(location, *coord, window)
     while etape != nEtape:
         while True:
             if etapeFinie(window):
@@ -121,13 +124,17 @@ def FaireChasse(window):
                 for i in range(dist):
                     if not goDir(location, direction, window):
                         if inFight(window):
-                            Combat(window)
-                        print("Resort to direct travel:",indiceCoord)
+                            if not Combat(window):
+                                print("died in accidental combat")
+                                return False
+                        print("Resort to diérect travel:",indiceCoord)
                         location = parseLocation(window)
                         travel(getCoord(location, window), *indiceCoord,window)
+                        location = parseLocation(window)
                         break
                     location = parseLocation(window)
             print("indice numero",nIndice+1," valide")
+            print("at:",getCoord(location, window), "visited:",visited)
             if getCoord(location, window) in visited:
                 print("already visited")
                 return False
@@ -152,7 +159,9 @@ def FaireChasse(window):
 def searchPho(location, phorreur, direction, visited, window):
     goDir(location, direction, window)
     if inFight(window):
-        Combat(window)
+        if not Combat(window):
+            print("died in accidental combat")
+            return False
     loc = parseLocation(window)
     if phorreurOnMap(phorreur,window):
         return True
@@ -161,7 +170,9 @@ def searchPho(location, phorreur, direction, visited, window):
         for i in range(1, max(1,j)+1):
             if not goDir(loc, direction, window):
                 if inFight(window):
-                    Combat(window)
+                    if not Combat(window):
+                        print("died in accidental combat")
+                        return False
                 i -= 1
                 loc = parseLocation(window)
                 break
@@ -172,7 +183,9 @@ def searchPho(location, phorreur, direction, visited, window):
         for j in range(1, max(1,i)+1):
             if not goDir(loc, directionOpposee(direction), window):
                 if inFight(window):
-                    Combat(window)
+                    if not Combat(window):
+                        print("died in accidental combat")
+                        return False
                 j -= 1
                 loc = parseLocation(window)
                 break
@@ -192,7 +205,8 @@ def faireChasses(window):
             abandon(startTime, window)
             continue
         if not Combat( window):
-            return False
+            abandon(startTime, window)
+            continue
             
 
 

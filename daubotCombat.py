@@ -1,5 +1,5 @@
-from daubotControl import lanceCombat,leaveChat,clearMouse
-from daubotImg import chasseLegendaire,inFight,victoire,myTurn,waitForEndScreen,placementPhase,initializeCharIndex,readText,isolateInImg,getEntityDelta
+from daubotControl import lanceCombat,leaveChat,clearMouse,clearInterface
+from daubotImg import chasseLegendaire,inFight,victoire,myTurn,waitForEndScreen,placementPhase,initializeCharIndex,readText,isolateInImg,getEntityDelta,defaite
 from daubotIO import getDofusWindow,press,screenshot,locateCenter,click
 from time import sleep
 from random import randint
@@ -7,45 +7,57 @@ import cv2
 import numpy as np
 
 tileConstant = 87
-region = (325,25,1600,890)
+region = (340,31,1600,890)
 
 def Combat(window):
-    img = screenshot(None, window)
-    charIndex = -1
-    print("combat.")
-    if chasseLegendaire(window):
-        print("chasse legendaire terminee")
-        return False
-    lanceCombat(window)
-    iniCreature(window)
-    while inFight(window):
-        if placementPhase(window):
-            print("placements")
-            playPlacements(window)
-            while placementPhase(window):
-                if not inFight(window):
-                    break
-            print("placements done\n")
-        if charIndex == -1:
-            charIndex = initializeCharIndex(window)
-        elif myTurn(charIndex, window):
-            print("my turn")
-            playTurn(window)
-            while myTurn(charIndex, window):
-                sleep(1)
-                img = screenshot(None, window)
-                if getPA(img) == 11 and getPM(img) == 6:
-                    break
-                if np.all(screenshot((850,1015,851,1016),window) == [[[0, 200, 252]]]):
-                    charIndex = initializeCharIndex(window)
-                    break
-    waitForEndScreen(window)
-    if victoire(window):
-        print("victoire")
-    else:
-        print("defaite")
-    leaveChat(window)
-    return True
+    history = set()
+    while True:
+        img = screenshot(None, window)
+        charIndex = -1
+        print("combat.")
+        if chasseLegendaire(window):
+            print("chasse legendaire terminee")
+            return False
+        lanceCombat(window)
+        iniCreature(window)
+        while inFight(window):
+            sleep(1)
+            print("trying to play")
+            if placementPhase(window):
+                print("placements")
+                playPlacements(window)
+            if charIndex == -1:
+                charIndex = initializeCharIndex(window)
+                print("my turn index:",charIndex)
+            elif myTurn(charIndex, window):
+                print("my turn")
+                turn = playTurn(window, history)
+                if not(turn is None):
+                    history.add(turn)
+                while myTurn(charIndex, window):
+                    sleep(1)
+                    img = screenshot(None, window)
+                    if getPA(img) == 11 and getPM(img) == 6:
+                        break
+                    if np.all(screenshot((850,1015,851,1016),window) == [[[0, 200, 252]]]):
+                        charIndex = initializeCharIndex(window)
+                        break
+            if np.all(screenshot((850,1015,851,1016),window) == [[[0, 200, 252]]]):
+                charIndex = initializeCharIndex(window)
+        print("fight ended?")
+        waitForEndScreen(window)
+        if victoire(window):
+            print("victoire")
+            clearInterface(window)
+            sleep(5)
+            return True
+        if defaite(window):
+            print("defaite")
+            clearInterface(window)
+            sleep(5)
+            return False
+        clearInterface(window)
+        return True
 
 def passTurn(window):
     press('f1',window)
@@ -102,7 +114,7 @@ def bestMatchInNumbers(img):
             bestdir = dirr
     return int(bestdir)
 
-def findOrigin(window, img):
+def findOrigin(img):
     ref = cv2.imread("origin.png")
     res = cv2.matchTemplate(ref, img, cv2.TM_SQDIFF_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
@@ -111,8 +123,8 @@ def findOrigin(window, img):
     min_loc[1] += ref.shape[0]
     return tuple(min_loc)
 
-def findRealOrigin(window, screen):
-    loc = findOrigin(window, screen)
+def findRealOrigin(screen):
+    loc = findOrigin(screen)
     Xorigin, Yorigin = loc
 
 
@@ -136,8 +148,8 @@ def findAllies(window, filtering = True):
     else:
         img = screenshot(region, window)
     red = np.where(img[:,:,2] > 170, True, False)
-    green = np.where(img[:,:,1] < 50, True, False)
-    blue = np.where(img[:,:,0] < 50, True, False)
+    green = np.where(img[:,:,1] < 60, True, False)
+    blue = np.where(img[:,:,0] < 60, True, False)
     res = np.where(red*blue*green)
     res = (res[0], res[1])
     return res
@@ -147,12 +159,12 @@ def findEnemies(window, filtering = True):
         mask = getEntityDelta(window, region)
         screen = screenshot(region, window)
         img = cv2.bitwise_and(screen,screen,mask = mask)
-        cv2.imwrite("debug\\findAllies.jpg",img)
+        cv2.imwrite("debug\\findEnemies.jpg",img)
     else:
         img = screenshot(region, window)
     red = np.where(img[:,:,0] > 170, True, False)
-    green = np.where(img[:,:,1] < 50, True, False)
-    blue = np.where(img[:,:,2] < 50, True, False)
+    green = np.where(img[:,:,1] < 60, True, False)
+    blue = np.where(img[:,:,2] < 60, True, False)
     res = np.where(red*blue*green)
     res = (res[0], res[1])
     return res
@@ -162,7 +174,7 @@ def findRealAllies(window,filtering = True):
     clearMouse(window)
 
     screen = screenshot(region, window)
-    origin = findOrigin(window, screen)
+    origin = findOrigin(screen)
     Xorigin, Yorigin = origin
     potentialAllies = findAllies(window,filtering)
 
@@ -171,7 +183,7 @@ def findRealAllies(window,filtering = True):
     v0 = (Yorigin*2 + -Xorigin)/tileConstant
 
 
-    screen = drawCross(screen, *findRealOrigin(window, screen), [0,255,0])
+    screen = drawCross(screen, *findRealOrigin(screen), [0,255,0])
 
     Allies = []
     for i in range(len(potentialAllies[0])):
@@ -207,7 +219,7 @@ def findRealEnemies(window,filtering = True):
     clearMouse(window)
 
     screen = screenshot(region, window)
-    origin = findOrigin(window, screen)
+    origin = findOrigin(screen)
     Xorigin, Yorigin = origin
     potentialAllies = findEnemies(window,filtering)
 
@@ -216,7 +228,7 @@ def findRealEnemies(window,filtering = True):
     v0 = (Yorigin*2 + -Xorigin)/tileConstant
 
 
-    screen = drawCross(screen, *findRealOrigin(window, screen), [0,255,0])
+    screen = drawCross(screen, *findRealOrigin(screen), [0,255,0])
 
     Allies = []
     for i in range(len(potentialAllies[0])):
@@ -314,18 +326,18 @@ def getPM(img):
     pm = bestMatchInNumbers(screen)
     return pm
 
-def uLign(u, origin, img):
-    vMin = 0
-    vMax = 0
+def uLign(u, origin, img, v0):
+    vMin = v0
+    vMax = v0
     while CaseState(u,vMin - 1, *origin, img) != None:
         vMin -= 1
     while CaseState(u,vMax + 1, *origin, img) != None:
         vMax += 1
     return np.array([CaseState(u,v, *origin, img) for v in range(vMin, vMax + 1)])
 
-def vLign(v, origin, img):
-    uMin = 0
-    uMax = 0
+def vLign(v, origin, img, u0):
+    uMin = u0
+    uMax = u0
     while CaseState(uMin - 1,v, *origin, img) != None:
         uMin -= 1
     while CaseState(uMax + 1,v, *origin, img) != None:
@@ -338,20 +350,37 @@ def isLignEmpty(lign):
     none = lign == None
     return np.all(void + stop + none)
 
+def findRealBoundaries(origin, img):
+    boundaries = findBoundaries(origin, img)
+    exBoundaries = None
+    while boundaries != exBoundaries:
+        exBoundaries = boundaries
+        boundaries = list(boundaries)
+        for u in range(exBoundaries[0], exBoundaries[1] + 1,6):
+            for v in range(exBoundaries[2], exBoundaries[3] + 1,6):
+                um, uM, vm, vM = findBoundaries(origin, img, u, v)
+                boundaries[0] = min(boundaries[0], um)
+                boundaries[1] = max(boundaries[1], uM)
+                boundaries[2] = min(boundaries[2], vm)
+                boundaries[3] = max(boundaries[3], vM)
+        boundaries = tuple(boundaries)
+    return boundaries
 
-def findBoundaries(origin, img):
-    uMin = 0
-    while not(isLignEmpty(uLign(uMin, origin, img))):
+
+
+def findBoundaries(origin, img, u0=0, v0=0):
+    uMin = u0
+    while not(isLignEmpty(uLign(uMin, origin, img, v0))):
         uMin -= 1
-    uMax = 0
-    while not(isLignEmpty(uLign(uMax, origin, img))):
+    uMax = u0
+    while not(isLignEmpty(uLign(uMax, origin, img, v0))):
         uMax += 1
 
-    vMin = 0
-    while not(isLignEmpty(vLign(vMin, origin, img))):
+    vMin = v0
+    while not(isLignEmpty(vLign(vMin, origin, img, u0))):
         vMin -= 1
-    vMax = 0
-    while not(isLignEmpty(vLign(vMax, origin, img))):
+    vMax = v0
+    while not(isLignEmpty(vLign(vMax, origin, img, u0))):
         vMax += 1
 
     return uMin+1, uMax-1, vMin+1, vMax-1
@@ -372,8 +401,8 @@ def closestCase(caseList, target, character, origin, img, radius = 0,lineOfSight
     lineFound = False
     caseList.append(character)
     for i in caseList:
-        distance = dist(i, target)
-        distToChar = dist(i, character)
+        distance = dist(i, target,origin,img)
+        distToChar = dist(i, character,origin,img)
         line = hasLineOfSight(i, target, origin, img)
         if ((distance <= minDist and distance >= radius) and ((line or not(lineFound)) or not(lineOfSight))) :
             if (distance == minDist and distToChar > distToCharMin):
@@ -383,6 +412,8 @@ def closestCase(caseList, target, character, origin, img, radius = 0,lineOfSight
             case = i
             if line:
                 lineFound = True
+            else:
+                lineFound = False
     return case
 
 def casesBetween(case, target):
@@ -410,57 +441,90 @@ def hasLineOfSight(i, target, origin, img):
 def playPlacements(window):
     screen = screenshot(region, window)
     cv2.imwrite("debug\\placements.png", screen)
-    origin = findRealOrigin(window, screen)
-    boundaries = findBoundaries(origin, screen)
+    origin = findRealOrigin(screen)
+    boundaries = findRealBoundaries(origin, screen)
     accessible = findAccessible(screen, boundaries, origin)
-    target = ToDofCoord(*findRealEnemies(window)[0], *origin)
+    enemies = findRealEnemies(window)
+    allies = findRealAllies(window)
+    if (len(allies) == 0) or (len(enemies) == 0):
+        return
+    target = ToDofCoord(*enemies[0], *origin)
     print("enemy at:", target)
-    allies = findRealAllies(window, False)
-    character = ToDofCoord(*allies[0], *origin)
+    character = [ToDofCoord(*i, *origin) for i in allies][0]
     print("i am at:", character)
     closest = closestCase(accessible, target, character,origin, screen)
     print("going to:", closest)
     x,y = ToRealCoord(*closest, *origin)
     if closest != character:
         click(x + region[0], y + region[1],window)
+        sleep(0.5)
     press('f1', window)
+    print("\n")
+    sleep(1)
 
-def playTurn(window):
+def playTurn(window, history):
+    clearInterface(window)
     screen = screenshot(region, window)
     cv2.imwrite("debug\\turn.png", screen)
     screenFull = screenshot(None, window)
     allies = findRealAllies(window)
     enemies = findRealEnemies(window)
     if (len(allies) == 0) or (len(enemies) == 0):
+        print("no one found")
         return
-    origin = findRealOrigin(window, screen)
-    boundaries = findBoundaries(origin, screen)
-    character = ToDofCoord(*allies[0], *origin)
+    origin = findRealOrigin(screen)
+    boundaries = findRealBoundaries(origin, screen)
+    character = whichAllyIsMe([ToDofCoord(*i, *origin) for i in allies],origin,screen)
+    while not character:
+        character = whichAllyIsMe([ToDofCoord(*i, *origin) for i in allies],origin,screenshot(region, window))
     print("i am at:", character)
-    # hp = getHP(screenFull)
-    # totHp = getTotHP(screenFull)
-    # pa = getPA(screenFull)
-    # pm = getPM(screenFull)
     accessible = findAccessible(screen, boundaries, origin)
     if accessible == [] and getPM(screenFull) > 0:
+        print("should be able to see accessibles, can't")
         return
     target = ToDofCoord(*enemies[0], *origin)
     print("enemy at:", target)
+    
+    
+    
     closest = closestCase(accessible, target,character,origin, screen,2)
     print("going to:", closest)
+    
+    if ((character,target),target) in history:
+        print("cycle, passing turn\n")
+        press('f1',window)
+        sleep(1)
+        return
+    
     x,y = ToRealCoord(*closest, *origin)
     if closest != character:
         click(x + region[0], y + region[1],window)
         sleep(0.5)
+    
     x,y = ToRealCoord(*target, *origin)
-    spell(2,window)
-    click(x + region[0], y + region[1],window)
-    sleep(0.5)
-    spell(2,window)
-    click(x + region[0], y + region[1],window)
-    sleep(0.5)
+    
+    if inFight(window):
+        spell(2,window)
+        spell(2,window)
+        spell(2,window)
+        click(x + region[0], y + region[1],window)
+        click(x + region[0], y + region[1],window)
+        click(x + region[0], y + region[1],window)
+        sleep(3)
+        
+        
+    if inFight(window):
+        spell(2,window)
+        spell(2,window)
+        spell(2,window)
+        click(x + region[0], y + region[1],window)
+        click(x + region[0], y + region[1],window)
+        click(x + region[0], y + region[1],window)
+        sleep(3)
     press('f1',window)
     print("\n")
+    sleep(1)
+    return ((character,target),target)
     
     
 def spell(n, window):
@@ -468,15 +532,115 @@ def spell(n, window):
     sleep(0.5)
     
 
-def dist(c1,c2):
-    return abs(c1[0]-c2[0])+abs(c1[1]-c2[1])
+def dist(c1,c2,origin,screen):
+    distance = 0
+    reached = set([c1])
+    while not(c2 in reached):
+        toAdd = []
+        distance += 1
+        for c in reached:
+            nextC = (c[0]+1, c[1])
+            if nextC == c2:
+                return distance
+            if not(nextC in reached):
+                state = CaseState(*nextC, *origin, screen)
+                if state in ["walkable","accessible"]:
+                    toAdd.append(nextC)
+                
+            nextC = (c[0]-1, c[1])
+            if nextC == c2:
+                return distance
+            if not(nextC in reached):
+                state = CaseState(*nextC, *origin, screen)
+                if state in ["walkable","accessible"]:
+                    toAdd.append(nextC)
+            
+            nextC = (c[0], c[1]+1)
+            if nextC == c2:
+                return distance
+            if not(nextC in reached):
+                state = CaseState(*nextC, *origin, screen)
+                if state in ["walkable","accessible"]:
+                    toAdd.append(nextC)
+                
+            nextC = (c[0], c[1]-1)
+            if nextC == c2:
+                return distance
+            if not(nextC in reached):
+                state = CaseState(*nextC, *origin, screen)
+                if state in ["walkable","accessible"]:
+                    toAdd.append(nextC)
+        if len(toAdd) == 0:
+            return float('inf')
+        for c in toAdd:
+            reached.add(c)
+    return distance
 
 def iniCreature(window):
     loc = locateCenter("creature.jpg",0.7,window)
     if loc:
         click(*loc, window)
+    
+
+def whichAllyIsMe(allies,origin,screen):
+    cv2.imwrite("begug\\findingMe.png",screen)
+    if len(allies) ==1:
+        return allies[0]
+    for case in allies:
+        if isMe(case,origin,screen):
+            return case
+    return
+
+def isMe(case,origin,screen):
+    reached = set([case])
+    while True:
+        toAdd = []
+        for c in reached:
+            nextC = (c[0]+1, c[1])
+            if not(nextC in reached):
+                state = CaseState(*nextC, *origin, screen)
+                if state in ["walkable","accessible"]:
+                    toAdd.append(nextC)
+                
+            nextC = (c[0]-1, c[1])
+            if not(nextC in reached):
+                state = CaseState(*nextC, *origin, screen)
+                if state in ["walkable","accessible"]:
+                    toAdd.append(nextC)
+            
+            nextC = (c[0], c[1]+1)
+            if not(nextC in reached):
+                state = CaseState(*nextC, *origin, screen)
+                if state in ["walkable","accessible"]:
+                    toAdd.append(nextC)
+                
+            nextC = (c[0], c[1]-1)
+            if not(nextC in reached):
+                state = CaseState(*nextC, *origin, screen)
+                if state in ["walkable","accessible"]:
+                    toAdd.append(nextC)
+        foundAccessible = False
+        foundWalkable = False
+        for c in toAdd:
+            if CaseState(*c, *origin, screen) == "walkable":
+                foundWalkable = True
+            if CaseState(*c, *origin, screen) == "accessible":
+                foundAccessible = True
+            reached.add(c)
+        if foundAccessible and not(foundWalkable):
+            continue
+        if foundWalkable and not(foundAccessible):
+            return True
+        if foundWalkable and foundAccessible:
+            return False
+        if not(foundWalkable) and not(foundAccessible):
+            return False
+
+def filterWhiteOut(img):
+    color, epsilon = [255]*3, 150
+    mask = 255 - isolateInImg(img, color, epsilon)[:,:,0]
+    return cv2.bitwise_and(img,img,mask = mask)
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
     Combat(window)
-    

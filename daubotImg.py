@@ -2,7 +2,7 @@ import numpy as np
 import cv2, pytesseract
 from daubotIO import screenshot, locate, moveTo,getDofusWindow,hotkey
 import difflib
-from time import sleep
+from time import sleep,time
 
 phos = ["Phorreur sournois", "Phorreur baveux", "Phorreur chafouin", "Phorreur fourbe", "Phorreur mefiant", "Phorreur ruse"]
 
@@ -253,6 +253,7 @@ def phorreurOnMap(phorreur, window):
         x += region[0]
         y += region[1]
         moveTo(x, y, window)
+        sleep(0.2)
         screen = screenshot((x-300, y-100, x+300, y+100), window)
         cv2.imwrite("debug\\phoDebug3"+str(i)+".jpg", screen)
         orange = [0, 175, 255]
@@ -274,12 +275,21 @@ def getDepRegion(window):
     (x,y) = parsingChasseCoord(window)
     moveTo(x, y+83, window)
     moveTo(x, y+82, window)
+    sleep(0.5)
     screen = screenshot((x-100,y,x+200,y+150),window)
     cv2.imwrite("debug\\depRegionDebug0.jpg", screen)
-    isolated = doubleIsolateInImg(screen)
+    isolated = isolateGreyWhite(screen)
     cv2.imwrite("debug\\depRegionDebug1.jpg", isolated)
     text = readText(isolated)
     return text
+
+def isolateGreyWhite(img):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    lower_gray = np.array([0, 0, 30], np.uint8)
+    upper_gray = np.array([179, 15, 255], np.uint8)
+    mask_gray = cv2.inRange(hsv, lower_gray, upper_gray)
+    img_res = cv2.bitwise_and(img, img, mask = mask_gray)
+    return img_res
 
 def doubleIsolateInImg(inputImg, greyTolerance = 15, whiteTolerance = 70):
     color = [whiteTolerance + (255-whiteTolerance)//2]*3
@@ -304,10 +314,12 @@ def chasseLegendaire(window):
     return not(not(locate("chasseLeg.jpg", 0.7,window)))
 
 def inFight(window):
-    return not(not(locate("fight.jpg",0.7,window)))
+    return not(not(locate("fight.png",0.8,window)))
 
 def myTurn(charIndex, window):
-    return getTurnIndex(window) == charIndex
+    index = getTurnIndex(window)
+    print("current turn index:",index)
+    return index == charIndex
 
 def getTurnIndex(window):
     xArrow,_ = bestMatch("turnArrow.jpg",window)
@@ -339,20 +351,23 @@ def getEntityDelta(window, region = (325,25,1600,920)):
     screen0 = screenshot(region, window)
     toggleTransparency(window)
     cv2.imwrite("debug\\phoDelta0.jpg",screen0)
+    sleep(0.5)
     screen1 = screenshot(region, window)
     cv2.imwrite("debug\\phoDelta1.jpg",screen1)
     res = np.abs(screen0 - screen1)
     cv2.imwrite("debug\\phoDelta2.jpg",res)
     toggleTransparency(window)
-    whiteTolerance = 10
-    color, epsilon = [whiteTolerance + (255-whiteTolerance)//2]*3, (255-whiteTolerance)//2
-    r = isolateInImg(res, color, epsilon)[:,:,0]
+    color, epsilon = [0]*3, 10
+    r = 255 - isolateInImg(res, color, epsilon)[:,:,0]
     cv2.imwrite("debug\\phoDelta3.jpg",r)
     return r
 
 def waitForEndScreen(window):
+    s = time()
     while not victoire(window) and not defaite(window):
         sleep(1)
+        if time()-s > 3:
+            return
 
 def placementPhase(window):
     return not(locate("turnArrow.jpg",0.8,window))
@@ -360,10 +375,10 @@ def placementPhase(window):
 def initializeCharIndex(window):
     while np.all(screenshot((850,1015,851,1016),window) != [[[0, 200, 252]]]):
         sleep(1)
-    return getTurnIndex(window)
+    index = getTurnIndex(window)
+    return index
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
-    print(parseLocation(window))
-    #print(phorreurOnMap("phorreur sournois", window))
+    print(phorreurOnMap("Phorreur sournois", window))
     

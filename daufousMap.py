@@ -10,24 +10,34 @@ def getIndices(x, y, direction, world = 0):
         return []
     return json.loads(r.text)["hints"]
 
+def getKeyFromValue(dic, value):
+    res = []
+    for tupl in list(dic.items()):
+        if tupl[1] == value:
+            res.append(tupl[0])
+    return res
+    
+
 def getIndiceDist(indice, x, y, direction, world = 0):
     hints = getIndices(x, y, direction, world)
-    if not hints:
+    if not(hints):
         return
-    index = list(translator.keys())[list(translator.values()).index(indice)]
+    indexList = getKeyFromValue(translator, indice)
     for dic in hints:
-        if str(dic['n']) == index:
-            return dic['d']
+        for index in indexList:
+            if str(dic['n']) == index:
+                return dic['d']
     return None
 
 def getIndiceCoord(indice, x, y, direction, world = 0):
     hints = getIndices(x, y, direction, world)
     if not hints:
         return
-    index = list(translator.keys())[list(translator.values()).index(indice)]
+    indexList = getKeyFromValue(translator, indice)
     for dic in hints:
-        if str(dic['n']) == index:
-            return (dic['x'],dic['y'])
+        for index in indexList:
+            if str(dic['n']) == index:
+                return (dic['x'],dic['y'])
     return None
 
 def getIndiceAnswers(x, y, direction, world = 0):
