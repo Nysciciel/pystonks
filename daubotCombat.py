@@ -57,7 +57,7 @@ def Combat(window):
             sleep(5)
             return False
         clearInterface(window)
-        return True
+        return False
 
 def passTurn(window):
     press('f1',window)

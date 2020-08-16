@@ -1,4 +1,4 @@
-from daubotControl import travel,zaapTo,clickOnZaap,enterCouloirMalle,enterSalleMalle,takeChasse,goDir,enterHavreSac,waitForCoord,attenteChasse,validateEtape,validateIndice,takeTransporteur,abandon
+from daubotControl import travel,zaapTo,clickOnZaap,enterCouloirMalle,enterSalleMalle,takeChasse,goDir,enterHavreSac,waitForCoord,attenteChasse,validateEtape,validateIndice,takeTransporteur,abandon,regenEnergy
 from daubotImg import getCoord,hasChasse,getDepCoord,getIndice,getEtape,getNumeroIndice,etapeFinie,getDir,isPho,phorreurOnMap,directionOpposee,getDepRegion,isDownOfOtomai,isRegionOnlyAccessibleThroughTranspo,parseLocation,inFight
 from daufousMap import getIndiceDist,getIndiceCoord,getIndiceAnswers,zaapName, closestZaapCoord
 from daubotIO import waitFor,getDofusWindow
@@ -51,7 +51,10 @@ def TakeChasse(window):
 
 def FaireChasse(window):
     world = 0
-    coord = getDepCoord(window)
+    try:
+        coord = getDepCoord(window)
+    except NameError:
+        return False
     (etape,nEtape) = getEtape(window)
     nIndice = getNumeroIndice(window)
     print("Depart en:",coord,"etape:",etape,"/",nEtape," indice trouves:",nIndice)
@@ -199,6 +202,7 @@ def searchPho(location, phorreur, direction, visited, window):
 def faireChasses(window):
     waitFor(window)
     while True:
+        regenEnergy(window)
         startTime = TakeChasse(window)
         print("chasse started at:", strftime("%H:%M"))
         if not FaireChasse(window):

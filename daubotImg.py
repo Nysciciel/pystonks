@@ -6,7 +6,7 @@ from time import sleep,time
 
 phos = ["Phorreur sournois", "Phorreur baveux", "Phorreur chafouin", "Phorreur fourbe", "Phorreur mefiant", "Phorreur ruse"]
 
-def parseLocation(window, tolerance = 200):
+def parseLocation(window, tolerance = 250):
     screen = screenshot((6,33,320,100), window)
     if screen is None:
         return None

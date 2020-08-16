@@ -5,7 +5,7 @@ from random import randint
 
 def clickOnZaap(window):
     click(600,370, window)
-    if not attenteForImg("zaapMenu.jpg", window, 0.9, 10):
+    if not attenteForImg("zaapMenu.jpg", window, 0.9, 20):
         raise NameError("Stuck trying to zaap")
 
 
@@ -18,12 +18,12 @@ def enterCouloirMalle(window, timeout = 10):
 
 def enterSalleMalle(window):
     click(1433,480,window)
-    if not attenteForImg("inMalle.jpg", window, 0.8, 10):
+    if not attenteForImg("inMalle.jpg", window, 0.8, 20):
         raise NameError("Can't enter malle hall")
 
 def takeChasse(window):
     click(1046,496,window)
-    if not attenteForImg("menuChasseLvl.jpg", window, timeout = 10):
+    if not attenteForImg("menuChasseLvl.jpg", window, 20):
         raise NameError("Stuck strying to take chasse")
     click(1200,530,window)
 
@@ -207,6 +207,8 @@ def takeTransporteur(depRegion, window):
     sleep(10)
 
 def abandon(startTime, window):
+    if not hasChasse(window):
+        return
     print("abandon\n\n\n\n\n")
     if 600 - (time() - startTime) > 10:
         sleep(600 - (time() - startTime))
@@ -240,6 +242,15 @@ def clearInterface(window):
     while not(not(locate("mainMenu.PNG", 0.8, window))):
         sleep(0.3)
 
+def regenEnergy(window):
+    doubleClick(856,943,window)
+    sleep(0.5)
+    doubleClick(856,943,window)
+    sleep(0.5)
+    doubleClick(856,943,window)
+    sleep(0.5)
+    doubleClick(856,943,window)
+    sleep(0.5)
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
