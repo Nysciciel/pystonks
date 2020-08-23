@@ -142,7 +142,7 @@ def enterHavreSac(loc, window):
     press('h', window)
     while not inHavreSac(loc, window):
         loc = parseLocation(window)
-        if locate("havreStuck.JPG",0.7,window):
+        if locate("havreStuck.JPG",0.9,window):
             direction = ["top","bottom","left","right"][randint(0,3)]
             goDir(direction, window)
             return enterHavreSac(window)
@@ -168,12 +168,12 @@ def waitForCoord(coord, timeout, window):
     return True
 
 def validateEtape(window):
-    left,top = locateCenter("validate.jpg",0.7,window)
+    left,top = locateCenter("validate.jpg",0.9,window)
     click(left , top , window)
     clearMouse(window)
 
 def clearMouse(window):
-    loc = locateCenter("escape.jpg", 0.7, window)
+    loc = locateCenter("escape.jpg", 0.8, window)
     x,y = loc
     moveTo(x,y, window)
     moveTo(x + 1,y, window)
@@ -215,16 +215,16 @@ def abandon(startTime, window):
     while time() - startTime < 600:
         sleep(IOpause)
     clearInterface(window)
-    left,top = locateCenter("abandon.JPG",0.7,window)
+    left,top = locateCenter("abandon.JPG",0.9,window)
     click(left , top , window)
     attenteForImg("attention.jpg", window, timeout = 10)
-    left,top = locateCenter("ok.JPG",0.7,window)
+    left,top = locateCenter("ok.JPG",0.9,window)
     click(left , top , window)
     while hasChasse(window):
         pass
 
 def lanceCombat(window):
-    loc = locateCenter("combattre.JPG",0.7,window)
+    loc = locateCenter("combattre.JPG",0.9,window)
     if loc:
         click(*loc, window)
     s = time()
@@ -235,11 +235,11 @@ def lanceCombat(window):
     print("fight started")
 
 def clearInterface(window):
-    while not(locate("mainMenu.PNG", 0.3, window)):
+    while not(locate("mainMenu.PNG", 0.9, window)):
         press('escape',window)
         sleep(2)
     press('escape',window)
-    while not(not(locate("mainMenu.PNG", 0.3, window))):
+    while not(not(locate("mainMenu.PNG", 0.9, window))):
         sleep(0.1)
 
 def regenEnergy(window):
@@ -254,4 +254,5 @@ def regenEnergy(window):
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
-    clearInterface(window)
+    print(locateCenter("escape.jpg", 0.8, window))
+    #clearInterface(window)

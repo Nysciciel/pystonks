@@ -86,19 +86,19 @@ def inHavreSac(location, window):
     return wordDiff(getRegion(location, window), "Havre-Sac Kerubim") <3
 
 def hasChasse(window):
-    return not(not(locate("chasse.jpg", 0.7,window))) or not(not(locate("chasseLeg.jpg", 0.7,window))) or not(not(locate("portail.png", 0.7,window)))
+    return not(not(locate("chasse.jpg", 0.9,window))) or not(not(locate("chasseLeg.jpg", 0.9,window))) or not(not(locate("portail.png", 0.9,window)))
 
 def parsingChasseCoord(window):
     if chasseLegendaire(window):
-        x,y = locate("chasseLeg.jpg", 0.7, window)
+        x,y = locate("chasseLeg.jpg", 0.9, window)
         return (x + 40, y)
     if chassePortail(window):
-        x,y = locate("portail.png", 0.7,window)
+        x,y = locate("portail.png", 0.9,window)
         return (x + 20,y - 6)
-    return locate("chasse.jpg", 0.7, window)
+    return locate("chasse.jpg", 0.9, window)
 
 def chassePortail(window):
-    return not(not(locate("portail.png", 0.7,window)))
+    return not(not(locate("portail.png", 0.9,window)))
 
 def getEtape(window):
     (x,y) = parsingChasseCoord(window)
@@ -316,10 +316,10 @@ def isRegionOnlyAccessibleThroughTranspo(region):
     return resteDiff < bourgadeDiff
     
 def chasseLegendaire(window):
-    return not(not(locate("chasseLeg.jpg", 0.7,window)))
+    return not(not(locate("chasseLeg.jpg", 0.9,window)))
 
 def inFight(window):
-    return not(not(locate("fight.png",0.8,window)))
+    return not(not(locate("fight.png",0.9,window)))
 
 def myTurn(charIndex, window):
     index = getTurnIndex(window)
@@ -343,10 +343,10 @@ def bestMatch(path, window):
     return tuple(min_loc)
 
 def victoire(window):
-    return not(not(locate("victoire.jpg",0.8,window)))
+    return not(not(locate("victoire.jpg",0.9,window)))
 
 def defaite(window):
-    return not(not(locate("defaite.jpg",0.8,window)))
+    return not(not(locate("defaite.jpg",0.9,window)))
 
 def toggleTransparency(window):
     hotkey('shift','2', window)
@@ -375,7 +375,7 @@ def waitForEndScreen(window):
             return
 
 def placementPhase(window):
-    return not(locate("turnArrow.jpg",0.8,window))
+    return not(locate("turnArrow.jpg",0.9,window))
 
 def initializeCharIndex(window):
     while np.all(screenshot((850,1015,851,1016),window) != [[[0, 200, 252]]]):

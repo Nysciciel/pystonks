@@ -1,6 +1,7 @@
 import win32gui, win32com.client
 import pyautogui
 import numpy as np
+import cv2
 from time import sleep
 pyautogui.PAUSE = 0.01
 IOpause = 0.01
@@ -14,24 +15,24 @@ def waitFor(window):
 
 def locate(img, confidence, window):
     waitFor(window)
-    res = pyautogui.locateOnScreen(img, confidence = confidence)
-    if res:
-        (x,y,_,_) = res
+    
+    res = cv2.matchTemplate(screenshot(window = window), cv2.imread(img), cv2.TM_SQDIFF_NORMED)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+    x,y = min_loc
+    if min_val < 1 - confidence:
         return x,y
     return None
 
 def locateCenter(img, confidence, window):
     waitFor(window)
-    return pyautogui.locateCenterOnScreen(img, confidence = confidence)
-
-def locateAll(img, confidence, window):
-    waitFor(window)
-    res = []
-    positions = pyautogui.locateAllOnScreen(img, confidence = confidence)
-    for pos in positions:
-        (x,y,w,h) = pos
-        res.append((x + w//2, y + h//2))
-    return res
+    
+    res = cv2.matchTemplate(screenshot(window = window), cv2.imread(img), cv2.TM_SQDIFF_NORMED)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+    x,y = min_loc
+    h,w,_ = cv2.imread(img).shape
+    if min_val < 1 - confidence:
+        return x + w//2,y + h//2
+    return None
 
 def enumerateWindows():
     res = []
