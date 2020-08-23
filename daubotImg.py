@@ -385,6 +385,6 @@ def initializeCharIndex(window):
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
-    #print(phorreurOnMap("Phorreur sournois", window))
-    print(getDepRegion(window))
+    print(phorreurOnMap("Phorreur sournois", window))
+    #print(getDepRegion(window))
     

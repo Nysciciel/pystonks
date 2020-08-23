@@ -235,12 +235,12 @@ def lanceCombat(window):
     print("fight started")
 
 def clearInterface(window):
-    while not(locate("mainMenu.PNG", 0.8, window)):
+    while not(locate("mainMenu.PNG", 0.3, window)):
         press('escape',window)
-        sleep(1)
+        sleep(2)
     press('escape',window)
-    while not(not(locate("mainMenu.PNG", 0.8, window))):
-        sleep(0.3)
+    while not(not(locate("mainMenu.PNG", 0.3, window))):
+        sleep(0.1)
 
 def regenEnergy(window):
     doubleClick(856,943,window)
@@ -254,3 +254,4 @@ def regenEnergy(window):
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
+    clearInterface(window)
