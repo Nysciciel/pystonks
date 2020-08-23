@@ -1,5 +1,5 @@
 from daubotControl import travel,zaapTo,clickOnZaap,enterCouloirMalle,enterSalleMalle,takeChasse,goDir,enterHavreSac,waitForCoord,attenteChasse,validateEtape,validateIndice,takeTransporteur,abandon,regenEnergy
-from daubotImg import getCoord,hasChasse,getDepCoord,getIndice,getEtape,getNumeroIndice,etapeFinie,getDir,isPho,phorreurOnMap,directionOpposee,getDepRegion,isDownOfOtomai,isRegionOnlyAccessibleThroughTranspo,parseLocation,inFight
+from daubotImg import getCoord,hasChasse,getDepCoord,getIndice,getEtape,getNumeroIndice,etapeFinie,getDir,isPho,phorreurOnMap,directionOpposee,getDepRegion,isDownOfOtomai,isRegionOnlyAccessibleThroughTranspo,parseLocation,inFight,chassePortail,chasseLegendaire
 from daufousMap import getIndiceDist,getIndiceCoord,getIndiceAnswers,zaapName, closestZaapCoord
 from daubotIO import waitFor,getDofusWindow
 from daubotCombat import Combat
@@ -28,7 +28,11 @@ def goThroughZaap(loc,x,y,window):
 def TakeChasse(window):
     try:
         if hasChasse(window):
-            print("il y a deja  une chasse en cours")
+            print("chasse en cours")
+            if chassePortail(window):
+                print("chasse portail")
+            if chasseLegendaire(window):
+                print("chasse legendaire")
             return time()
         print("Je vais a la malle")
         loc = parseLocation(window)
@@ -130,7 +134,7 @@ def FaireChasse(window):
                             if not Combat(window):
                                 print("died in accidental combat")
                                 return False
-                        print("Resort to diérect travel:",indiceCoord)
+                        print("Resort to direct travel:",indiceCoord)
                         location = parseLocation(window)
                         travel(getCoord(location, window), *indiceCoord,window)
                         location = parseLocation(window)

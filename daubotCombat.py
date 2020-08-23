@@ -1,5 +1,5 @@
 from daubotControl import lanceCombat,leaveChat,clearMouse,clearInterface
-from daubotImg import chasseLegendaire,inFight,victoire,myTurn,waitForEndScreen,placementPhase,initializeCharIndex,readText,isolateInImg,getEntityDelta,defaite
+from daubotImg import chasseLegendaire,inFight,victoire,myTurn,waitForEndScreen,placementPhase,initializeCharIndex,readText,isolateInImg,getEntityDelta,defaite,chassePortail
 from daubotIO import getDofusWindow,press,screenshot,locateCenter,click
 from time import sleep
 from random import randint
@@ -17,6 +17,9 @@ def Combat(window):
         print("combat.")
         if chasseLegendaire(window):
             print("chasse legendaire terminee")
+            return False
+        if chassePortail(window):
+            print("chasse portail terminee")
             return False
         lanceCombat(window)
         iniCreature(window)

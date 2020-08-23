@@ -23,7 +23,7 @@ def enterSalleMalle(window):
 
 def takeChasse(window):
     click(1046,496,window)
-    if not attenteForImg("menuChasseLvl.jpg", window, 20):
+    if not attenteForImg("menuChasseLvl.jpg", window, 0.9, 20):
         raise NameError("Stuck strying to take chasse")
     click(1200,530,window)
 
@@ -36,7 +36,7 @@ def waitForCoordChange(coord, timeout, window):
     g = getCoord(parseLocation(window), window)
     start = time()
     while coord == g:
-        sleep(1)
+        sleep(0.2)
         g = getCoord(parseLocation(window), window)
         if time()-start > timeout:
             return False
@@ -67,7 +67,7 @@ def attenteForImg(img, window, confidence = 0.7, timeout = float('inf')):
     r = None
     start = time()
     while r is None:
-        sleep(1)
+        sleep(0.2)
         r = locate(img,confidence,window)
         if time()-start > timeout:
             return False

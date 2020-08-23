@@ -4,7 +4,7 @@ from daubotIO import screenshot, locate, moveTo,getDofusWindow,hotkey
 import difflib
 from time import sleep,time
 
-phos = ["Phorreur sournois", "Phorreur baveux", "Phorreur chafouin", "Phorreur fourbe", "Phorreur mefiant", "Phorreur ruse"]
+phos = ["Phorreur sournois", "Phorreur baveux", "Phorreur chafouin", "Phorreur fourbe", "Phorreur mefiant", "Phorreur ruse", "Phorreur habile", "Phorreur dégourdi","Phorreur désinvolte"]
 
 def parseLocation(window, tolerance = 250):
     screen = screenshot((6,33,320,100), window)
@@ -86,14 +86,19 @@ def inHavreSac(location, window):
     return wordDiff(getRegion(location, window), "Havre-Sac Kerubim") <3
 
 def hasChasse(window):
-    return not(not(locate("chasse.jpg", 0.7,window))) or not(not(locate("chasseLeg.jpg", 0.7,window)))
+    return not(not(locate("chasse.jpg", 0.7,window))) or not(not(locate("chasseLeg.jpg", 0.7,window))) or not(not(locate("portail.png", 0.7,window)))
 
 def parsingChasseCoord(window):
     if chasseLegendaire(window):
         x,y = locate("chasseLeg.jpg", 0.7, window)
-        return (x+40, y)
+        return (x + 40, y)
+    if chassePortail(window):
+        x,y = locate("portail.png", 0.7,window)
+        return (x + 20,y - 6)
     return locate("chasse.jpg", 0.7, window)
 
+def chassePortail(window):
+    return not(not(locate("portail.png", 0.7,window)))
 
 def getEtape(window):
     (x,y) = parsingChasseCoord(window)
@@ -380,5 +385,6 @@ def initializeCharIndex(window):
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
-    print(phorreurOnMap("Phorreur sournois", window))
+    #print(phorreurOnMap("Phorreur sournois", window))
+    print(getDepRegion(window))
     

@@ -62,6 +62,10 @@ def typeText(text, window):
     sleep(0.5)
 
 def click(x, y, window):
+    # lParam = win32api.MAKELONG(x, y)
+    # win32api.PostMessage(hWnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, lParam)
+    # win32api.PostMessage(hWnd, win32con.WM_LBUTTONUP, None, lParam)
+    
     sleep(IOpause)
     waitFor(window)
     pyautogui.moveTo(x,y)
