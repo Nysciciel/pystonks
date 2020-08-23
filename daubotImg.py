@@ -137,7 +137,7 @@ def getDepCoord(window):
 
 
 def getFlag(window):
-    return locate("flag.jpg", 0.9, window)
+    return locate("flag.jpg", 0.95, window)
 
 def findIndiceSquare(window):
     res = cv2.matchTemplate(screenshot(window = window), cv2.imread("indiceSquare.jpg"), cv2.TM_SQDIFF_NORMED)
@@ -385,6 +385,7 @@ def initializeCharIndex(window):
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
-    print(phorreurOnMap("Phorreur sournois", window))
+    #◘print(phorreurOnMap("Phorreur sournois", window))
+    print(getFlag(window))
     #print(getDepRegion(window))
     
