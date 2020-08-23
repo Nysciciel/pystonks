@@ -375,7 +375,7 @@ def waitForEndScreen(window):
             return
 
 def placementPhase(window):
-    return not(locate("turnArrow.jpg",0.9,window))
+    return not(locate("turnArrow.jpg",0.95,window))
 
 def initializeCharIndex(window):
     while np.all(screenshot((850,1015,851,1016),window) != [[[0, 200, 252]]]):
@@ -385,7 +385,8 @@ def initializeCharIndex(window):
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
-    #◘print(phorreurOnMap("Phorreur sournois", window))
-    print(getFlag(window))
+    #print(phorreurOnMap("Phorreur sournois", window))
+    #print(getFlag(window))
     #print(getDepRegion(window))
+    print(placementPhase(window))
     

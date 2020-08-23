@@ -580,7 +580,7 @@ def dist(c1,c2,origin,screen):
     return distance
 
 def iniCreature(window):
-    loc = locateCenter("creature.jpg",0.7,window)
+    loc = locateCenter("creature.jpg",0.9,window)
     if loc:
         click(*loc, window)
     
@@ -646,4 +646,5 @@ def filterWhiteOut(img):
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
-    Combat(window)
+    iniCreature(window)
+    #Combat(window)
