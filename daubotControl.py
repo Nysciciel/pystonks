@@ -236,11 +236,11 @@ def lanceCombat(window):
     print("fight started")
 
 def clearInterface(window):
-    while not(locate("mainMenu.PNG", 0.9, window)):
+    while not(locate("mainMenu.PNG", 0.8, window)):
         press('escape',window)
         sleep(2)
     press('escape',window)
-    while not(not(locate("mainMenu.PNG", 0.9, window))):
+    while not(not(locate("mainMenu.PNG", 0.8, window))):
         sleep(0.1)
 
 def regenEnergy(window):
