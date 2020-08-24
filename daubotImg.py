@@ -320,6 +320,7 @@ def chasseLegendaire(window):
     return not(not(locate("chasseLeg.jpg", 0.9,window)))
 
 def inFight(window):
+    return not(not(locateCenter("tac.png", 0.8, window)))
     #return not(not(locate("fight.jpg",0.98,window)))
     pixel=screenshot(barreCoord(window),window)
     #print(pixel)
@@ -388,9 +389,9 @@ def initializeCharIndex(window):
     return index
 
 def barreCoord(window):
-    loc = locateCenter("escape.jpg", 0.8, window)
+    loc = locateCenter("tac.png", 0.8, window)
     x,y = loc
-    return (x-1051,y+968,x-1051+1,y+968+1)
+    return (x-473,y+7,x-473+1,y+7+1)
 
 if __name__ == "__main__":
     window = getDofusWindow("Mr-Maron")
@@ -399,4 +400,5 @@ if __name__ == "__main__":
     #print(getDepRegion(window))
     #print(placementPhase(window))
     print(inFight(window))
+    print(barreCoord(window))
     
