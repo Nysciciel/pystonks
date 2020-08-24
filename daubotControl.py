@@ -81,7 +81,7 @@ def travel(coord,x,y,window):
     text = "/travel "+str(x)+" "+str(y)
     typeText(text, window)
     press("enter", window)
-    attenteForImg("travelPending.jpg", window, timeout = 10)
+    attenteForImg("travelPending.png", window, timeout = 10)
     press("enter", window)
     leaveChat(window)
     attenteForImg("travelFinished.JPG", window)
