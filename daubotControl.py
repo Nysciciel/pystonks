@@ -171,6 +171,7 @@ def validateEtape(window):
     left,top = locateCenter("validate.jpg",0.9,window)
     click(left , top , window)
     clearMouse(window)
+    sleep(1)
 
 def clearMouse(window):
     loc = locateCenter("escape.jpg", 0.8, window)

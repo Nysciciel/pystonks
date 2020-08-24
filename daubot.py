@@ -1,4 +1,4 @@
-from daubotControl import travel,zaapTo,clickOnZaap,enterCouloirMalle,enterSalleMalle,takeChasse,goDir,enterHavreSac,waitForCoord,attenteChasse,validateEtape,validateIndice,takeTransporteur,abandon,regenEnergy
+from daubotControl import travel,zaapTo,clickOnZaap,enterCouloirMalle,enterSalleMalle,takeChasse,goDir,enterHavreSac,waitForCoord,attenteChasse,validateEtape,validateIndice,takeTransporteur,abandon,regenEnergy,clearInterface
 from daubotImg import getCoord,hasChasse,getDepCoord,getIndice,getEtape,getNumeroIndice,etapeFinie,getDir,isPho,phorreurOnMap,directionOpposee,getDepRegion,isDownOfOtomai,isRegionOnlyAccessibleThroughTranspo,parseLocation,inFight,chassePortail,chasseLegendaire
 from daufousMap import getIndiceDist,getIndiceCoord,getIndiceAnswers,zaapName, closestZaapCoord
 from daubotIO import waitFor,getDofusWindow
@@ -134,6 +134,7 @@ def FaireChasse(window):
                             if not Combat(window):
                                 print("died in accidental combat")
                                 return False
+                        clearInterface(window)
                         print("Resort to direct travel:",indiceCoord)
                         location = parseLocation(window)
                         travel(getCoord(location, window), *indiceCoord,window)
