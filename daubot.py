@@ -207,6 +207,10 @@ def searchPho(location, phorreur, direction, visited, window):
 def faireChasses(window):
     waitFor(window)
     while True:
+        if inFight(window):
+            if not Combat(window):
+                abandon(time(), window)
+                continue
         regenEnergy(window)
         startTime = TakeChasse(window)
         print("chasse started at:", strftime("%H:%M"))
