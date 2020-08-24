@@ -390,6 +390,8 @@ def initializeCharIndex(window):
 
 def barreCoord(window):
     loc = locateCenter("tac.png", 0.8, window)
+    if not loc:
+        return None
     x,y = loc
     return (x-473,y+7,x-473+1,y+7+1)
 
