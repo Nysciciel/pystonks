@@ -102,7 +102,7 @@ def chassePortail(window):
 
 def getEtape(window):
     (x,y) = parsingChasseCoord(window)
-    screen = screenshot((x-52,y+34,x+60,y+61), window)
+    screen = screenshot((x-52,y+34,x+60,y+66), window)
     cv2.imwrite('debug\\parseEtapeDebug1.jpg', screen)
     isolated = isolateInImg(screen, [80,60,40],80)
     cv2.imwrite('debug\\parseEtapeDebug2.jpg', isolated)
@@ -320,8 +320,8 @@ def chasseLegendaire(window):
 
 def inFight(window):
     #return not(not(locate("fight.jpg",0.98,window)))
-    pixel=screenshot((850,1015,851,1016),window)
-    print(pixel)
+    pixel=screenshot((850,1023,851,1024),window)
+    #print(pixel)
     return np.all(pixel == [[[0, 200, 252]]])
 
 def myTurn(charIndex, window):
@@ -381,8 +381,7 @@ def placementPhase(window):
     return not(locate("turnArrow.jpg",0.95,window))
 
 def initializeCharIndex(window):
-    while np.all(screenshot((850,1015,851,1016),window) != [[[0, 200, 252]]]):
-        print(screenshot((850,1015,851,1016),window)+" VS " + "[0, 200, 252]")
+    while np.all(screenshot((850,1023,851,1024),window) != [[[0, 200, 252]]]):
         sleep(1)
     index = getTurnIndex(window)
     return index
