@@ -1,5 +1,5 @@
 from daubotControl import lanceCombat,leaveChat,clearMouse,clearInterface
-from daubotImg import chasseLegendaire,inFight,victoire,myTurn,waitForEndScreen,placementPhase,initializeCharIndex,readText,isolateInImg,getEntityDelta,defaite,chassePortail
+from daubotImg import chasseLegendaire,inFight,victoire,myTurn,waitForEndScreen,placementPhase,initializeCharIndex,readText,isolateInImg,getEntityDelta,defaite,chassePortail,barreCoord
 from daubotIO import getDofusWindow,press,screenshot,locateCenter,click
 from time import sleep
 from random import randint
@@ -42,10 +42,10 @@ def Combat(window):
                     img = screenshot(None, window)
                     if getPA(img) == 11 and getPM(img) == 6:
                         break
-                    if np.all(screenshot((850,1015,851,1016),window) == [[[0, 200, 252]]]):
+                    if np.all(screenshot(barreCoord(window),window) == [[[0, 200, 252]]]):
                         charIndex = initializeCharIndex(window)
                         break
-            if np.all(screenshot((850,1015,851,1016),window) == [[[0, 200, 252]]]):
+            if np.all(screenshot(barreCoord(window),window) == [[[0, 200, 252]]]):
                 charIndex = initializeCharIndex(window)
         print("fight ended?")
         waitForEndScreen(window)

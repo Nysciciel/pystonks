@@ -1,8 +1,9 @@
 import numpy as np
 import cv2, pytesseract
-from daubotIO import screenshot, locate, moveTo,getDofusWindow,hotkey
+from daubotIO import screenshot, locate, moveTo,getDofusWindow,hotkey,locateCenter
 import difflib
 from time import sleep,time
+
 
 phos = ["Phorreur sournois", "Phorreur baveux", "Phorreur chafouin", "Phorreur fourbe", "Phorreur mefiant", "Phorreur ruse", "Phorreur habile", "Phorreur dégourdi","Phorreur désinvolte"]
 
@@ -320,7 +321,7 @@ def chasseLegendaire(window):
 
 def inFight(window):
     #return not(not(locate("fight.jpg",0.98,window)))
-    pixel=screenshot((850,1023,851,1024),window)
+    pixel=screenshot(barreCoord(window),window)
     #print(pixel)
     return np.all(pixel == [[[0, 200, 252]]])
 
@@ -381,13 +382,18 @@ def placementPhase(window):
     return not(locate("turnArrow.jpg",0.95,window))
 
 def initializeCharIndex(window):
-    while np.all(screenshot((850,1023,851,1024),window) != [[[0, 200, 252]]]):
+    while np.all(screenshot(barreCoord(window),window) != [[[0, 200, 252]]]):
         sleep(1)
     index = getTurnIndex(window)
     return index
 
+def barreCoord(window):
+    loc = locateCenter("escape.jpg", 0.8, window)
+    x,y = loc
+    return (x-1051,y+968,x-1051+1,y+968+1)
+
 if __name__ == "__main__":
-    window = getDofusWindow("Xbani")
+    window = getDofusWindow("Mr-Maron")
     #print(phorreurOnMap("Phorreur sournois", window))
     #print(getFlag(window))
     #print(getDepRegion(window))
