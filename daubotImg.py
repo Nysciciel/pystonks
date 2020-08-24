@@ -102,7 +102,7 @@ def chassePortail(window):
 
 def getEtape(window):
     (x,y) = parsingChasseCoord(window)
-    screen = screenshot((x-52,y+34,x+60,y+61), window)
+    screen = screenshot((x-52,y+34,x+60,y+66), window)
     cv2.imwrite('debug\\parseEtapeDebug1.jpg', screen)
     isolated = isolateInImg(screen, [80,60,40],80)
     cv2.imwrite('debug\\parseEtapeDebug2.jpg', isolated)
