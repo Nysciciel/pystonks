@@ -319,7 +319,7 @@ def chasseLegendaire(window):
     return not(not(locate("chasseLeg.jpg", 0.9,window)))
 
 def inFight(window):
-    return not(not(locate("fight.png",0.9,window)))
+    return not(not(locate("fight.jpg",0.95,window)))
 
 def myTurn(charIndex, window):
     index = getTurnIndex(window)
