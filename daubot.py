@@ -222,7 +222,7 @@ def faireChasses(window):
 
 
 if __name__ == "__main__":
-    window = getDofusWindow("Mr-Maron")
+    window = getDofusWindow("Xbani")
     faireChasses(window)
 
 

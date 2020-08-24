@@ -86,16 +86,16 @@ def inHavreSac(location, window):
     return wordDiff(getRegion(location, window), "Havre-Sac Kerubim") <3
 
 def hasChasse(window):
-    return not(not(locate("chasse.jpg", 0.9,window))) or not(not(locate("chasseLeg.jpg", 0.9,window))) or not(not(locate("portail.png", 0.9,window)))
+    return not(not(locate("chasse.jpg", 0.7,window))) or not(not(locate("chasseLeg.jpg", 0.7,window))) or not(not(locate("portail.png", 0.7,window)))
 
 def parsingChasseCoord(window):
     if chasseLegendaire(window):
-        x,y = locate("chasseLeg.jpg", 0.9, window)
+        x,y = locate("chasseLeg.jpg", 0.7, window)
         return (x + 40, y)
     if chassePortail(window):
-        x,y = locate("portail.png", 0.9,window)
+        x,y = locate("portail.png", 0.7,window)
         return (x + 20,y - 6)
-    return locate("chasse.jpg", 0.9, window)
+    return locate("chasse.jpg", 0.7, window)
 
 def chassePortail(window):
     return not(not(locate("portail.png", 0.9,window)))
@@ -319,7 +319,10 @@ def chasseLegendaire(window):
     return not(not(locate("chasseLeg.jpg", 0.9,window)))
 
 def inFight(window):
-    return not(not(locate("fight.jpg",0.95,window)))
+    #return not(not(locate("fight.jpg",0.98,window)))
+    pixel=screenshot((850,1015,851,1016),window)
+    print(pixel)
+    return np.all(pixel == [[[0, 200, 252]]])
 
 def myTurn(charIndex, window):
     index = getTurnIndex(window)
@@ -379,14 +382,16 @@ def placementPhase(window):
 
 def initializeCharIndex(window):
     while np.all(screenshot((850,1015,851,1016),window) != [[[0, 200, 252]]]):
+        print(screenshot((850,1015,851,1016),window)+" VS " + "[0, 200, 252]")
         sleep(1)
     index = getTurnIndex(window)
     return index
 
 if __name__ == "__main__":
-    window = getDofusWindow("Mr-Maron")
+    window = getDofusWindow("Xbani")
     #print(phorreurOnMap("Phorreur sournois", window))
     #print(getFlag(window))
     #print(getDepRegion(window))
-    print(placementPhase(window))
+    #print(placementPhase(window))
+    print(inFight(window))
     
