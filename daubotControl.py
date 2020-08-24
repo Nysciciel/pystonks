@@ -23,7 +23,7 @@ def enterSalleMalle(window):
 
 def takeChasse(window):
     click(1046,496,window)
-    if not attenteForImg("menuChasseLvl.jpg", window, 0.9, 20):
+    if not attenteForImg("menuChasseLvl.jpg", window, 0.8, 20):
         raise NameError("Stuck strying to take chasse")
     click(1200,530,window)
 
