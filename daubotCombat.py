@@ -6,7 +6,7 @@ from random import randint
 import cv2
 import numpy as np
 
-tileConstant = 87
+tileConstant = 88
 region = (340,31,1600,890)
 
 def Combat(window):
@@ -490,7 +490,7 @@ def playTurn(window, history):
     
     
     
-    closest = closestCase(accessible, target,character,origin, screen,2)
+    closest = closestCase(accessible, target,character,origin, screen,3)
     print("going to:", closest)
     
     if ((character,target),target) in history:
@@ -645,6 +645,6 @@ def filterWhiteOut(img):
     return cv2.bitwise_and(img,img,mask = mask)
 
 if __name__ == "__main__":
-    window = getDofusWindow("Mr-Maron")
+    window = getDofusWindow("Xbani")
     iniCreature(window)
     #Combat(window)
